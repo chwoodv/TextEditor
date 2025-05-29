@@ -40,6 +40,9 @@ struct editorConfig E;
 
 /*** terminal ***/
 
+/**
+ * call to exit program (CTRL Q or error)
+ */
 void die(const char *s) {
     write(STDOUT_FILENO, "\x1b[2J", 4);
     write(STDOUT_FILENO, "\x1b[H", 3);
@@ -71,6 +74,10 @@ void enableRawMode() {
         die("tcsetattr");
 }
 
+/**
+ * Reads key into seq
+ * @return editorKey value of input key
+ */
 int editorReadKey() {
     int nread;
     char c;
@@ -119,6 +126,12 @@ int editorReadKey() {
     }
 }
 
+/**
+ * 
+ * @param rows returning row value of cursor
+ * @param cols returning column value of cursor
+ * @return 0 on success, -1 on failure
+ */
 int getCursorPosition(int *rows, int *cols) {
     char buf[32];
     unsigned int i = 0;
@@ -134,6 +147,12 @@ int getCursorPosition(int *rows, int *cols) {
     return 0;
   }
 
+/**
+ * 
+ * @param rows returning row number value
+ * @param cols returning column number value
+ * @return 0 on success, -1 on failure
+ */
 int getWindowSize(int *rows, int *cols) {
     struct winsize ws;
 
@@ -170,6 +189,11 @@ void abFree(struct abuf *ab) {
 
 /*** output ***/
 
+/**
+ * Draws rows according to buffer
+ * 
+ * @param ab Buffer struct to be drawn from
+ */
 void editorDrawRows(struct abuf *ab) {
     int y;
     for (y = 0; y < E.screenrows; y++){
@@ -195,6 +219,9 @@ void editorDrawRows(struct abuf *ab) {
     }
 }
 
+/**
+ * Clear and refresh screen and buffer
+ */
 void editorRefreshScreen() {
     struct abuf ab = ABUF_INIT;
 
@@ -215,6 +242,9 @@ void editorRefreshScreen() {
 
 /*** input ***/
 
+/**
+ * @param key editorKey value of key pressed
+ */
 void editorMoveCursor(int key) {
     switch (key) {
       case ARROW_LEFT:
@@ -240,6 +270,9 @@ void editorMoveCursor(int key) {
     }
 }
 
+/**
+ * Keypress handler
+ */
 void editorProcessKeypress() {
     int c = editorReadKey();
 
