@@ -253,6 +253,22 @@ void editorAppendRow(char *s, size_t len) {
     E.dirty++;
 }
 
+void editorFreeRow(erow *row) {
+    free(row->render);
+    free(row->chars);
+}
+
+/**
+ * @param at delete \r\n and row at index
+ */
+void editorDelRow(int at) {
+    if (at < 0 || at >= E.numrows) return;
+    editorFreeRow(&E.row[at]);
+    memmove(&E.row[at], &E.row[at + 1], sizeof(erow) * (E.numrows - at - 1));
+    E.numrows--;
+    E.dirty++;
+}
+
 /**
  * @param row erow of row being modified
  * @param at index to insert character
@@ -264,6 +280,34 @@ void editorRowInsertChar(erow *row, int at, int c) {
     memmove(&row->chars[at + 1], &row->chars[at], row->size - at + 1);
     row->size++;
     row->chars[at] = c;
+    editorUpdateRow(row);
+    E.dirty++;
+}
+
+/**
+ * Appends string to end of existing row
+ * 
+ * @param row row to be appended
+ * @param s character string to append to end of row
+ * @param len length of s
+ */
+void editorRowAppendString(erow *row, char *s, size_t len) {
+    row->chars = realloc(row->chars, row->size + len + 1);
+    memcpy(&row->chars[row->size], s, len);
+    row->size += len;
+    row->chars[row->size] = '\0';
+    editorUpdateRow(row);
+    E.dirty++;
+}
+
+/**
+ * @param row erow being modified
+ * @param at index to delete character
+ */
+void editorRowDeleteChar(erow *row, int at) {
+    if (at < 0 || at >= row->size) return;
+    memmove(&row->chars[at], &row->chars[at + 1], row->size - at);
+    row->size--;
     editorUpdateRow(row);
     E.dirty++;
 }
@@ -281,6 +325,22 @@ void editorInsertChar(int c) {
     editorRowInsertChar(&E.row[E.cy], E.cx, c);
     E.cx++;
 }
+
+void editorDeleteChar() {
+    if (E.cy == E.numrows) return;
+    if (E.cx == 0 && E.cy == 0) return;
+
+    erow *row = &E.row[E.cy];
+    if (E.cx > 0) {
+        editorRowDeleteChar(row, E.cx - 1);
+        E.cx--;
+    } else {
+        E.cx = E.row[E.cy - 1].size;
+        editorRowAppendString(&E.row[E.cy - 1], row->chars, row->size);
+        editorDelRow(E.cy);
+        E.cy--;
+    }
+} 
 
 /*** ------------------------- file i/o ------------------------- ***/
 
@@ -586,7 +646,8 @@ void editorProcessKeypress() {
         case BACKSPACE:
         case CTRL_KEY('h'):
         case DEL_KEY:
-            // TODO
+            if (c==DEL_KEY) editorMoveCursor(ARROW_RIGHT);
+            editorDeleteChar();
             break;
         
         case PAGE_UP:
