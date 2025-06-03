@@ -1,4 +1,6 @@
 
+/*** ------------------------- includes ------------------------- ***/
+
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #define _GNU_SOURCE
@@ -67,6 +69,8 @@ struct editorConfig E;
 /*** ------------------------- prototypes ------------------------- ***/
 
 void editorSetStatusMessage(const char *fmt, ...);
+void editorRefreshScreen();
+char *editorPrompt(char *prompt);
 
 /*** ------------------------- terminal ------------------------- ***/
 
@@ -387,50 +391,51 @@ char *editorRowsToString(int *buflen) {
 /**
  * Open and read file from disk
  */
-void editorOpen(char *filename){
+void editorOpen(char *filename) {
     free(E.filename);
     E.filename = strdup(filename);
-
-    FILE *fp = fopen(filename, "r");        // VSCode creates an error here saying FILE is not in stdio for some reason, ignore this
+    FILE *fp = fopen(filename, "r");
     if (!fp) die("fopen");
-    
     char *line = NULL;
     size_t linecap = 0;
     ssize_t linelen;
-    linelen = getline(&line, &linecap, fp);
     while ((linelen = getline(&line, &linecap, fp)) != -1) {
-        while (linelen > 0 && (line[linelen - 1] == '\n' || line[linelen - 1] == '\r'))
-            linelen--;
-
-        editorInsertRow(E.numrows, line, linelen);
+        while (linelen > 0 && (line[linelen - 1] == '\n' ||
+                             line[linelen - 1] == '\r'))
+        linelen--;
+      editorInsertRow(E.numrows, line, linelen);
     }
     free(line);
     fclose(fp);
     E.dirty = 0;
-}
+  }
 
 void editorSave() {
-    if (E.filename == NULL || E.dirty == 0) return;
-
-    int len;
-    char *buf = editorRowsToString(&len);
-
-    int fd = open(E.filename, O_RDWR | O_CREAT, 0644);
-
-    if (fd != -1) {
+    if (E.filename == NULL) {
+        E.filename = editorPrompt("Save as: %s (ESC to cancel)");
+        if (E.filename == NULL) {
+          editorSetStatusMessage("Save aborted");
+          return;
+        }
+      }
+      int len;
+      char *buf = editorRowsToString(&len);
+      int fd = open(E.filename, O_RDWR | O_CREAT, 0644);
+      if (fd != -1) {
         if (ftruncate(fd, len) != -1) {
-            if (write(fd, buf, len) == len) {
-                close(fd);
-                free(buf);
-                editorSetStatusMessage("%d bytes written to disk", len);
-                E.dirty = 0;
-                return;
-            }
+          if (write(fd, buf, len) == len) {
+            close(fd);
+            free(buf);
+            E.dirty = 0;
+            editorSetStatusMessage("%d bytes written to disk", len);
+            return;
+          }
         }
         close(fd);
-    }
-    free(buf);
-    editorSetStatusMessage("Unable to save, I/O ERROR: %s", strerror(errno));
+      }
+      free(buf);
+      editorSetStatusMessage("Can't save! I/O error: %s", strerror(errno));
+    
 }
 
 /*** ------------------------- append buffer ------------------------- ***/
@@ -585,6 +590,40 @@ void editorSetStatusMessage(const char *fmt, ...) {
 }
 
 /*** ------------------------- input ------------------------- ***/
+
+char *editorPrompt(char *prompt) {
+    size_t bufsize = 128;
+    char *buf = malloc(bufsize);
+
+    size_t buflen = 0;
+    buf[0] = '\0';
+
+    while (1) {
+        editorSetStatusMessage(prompt, buf);
+        editorRefreshScreen();
+
+        int c = editorReadKey();
+        if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
+            if (buflen != 0) buf[--buflen] = '\0';
+        } else if (c == '\x1b') {
+            editorSetStatusMessage("");
+            free(buf);
+            return NULL;
+        } else if (c == '\r') {
+            if (buflen != 0) {
+                editorSetStatusMessage("");
+                return buf;
+            }
+        } else if (!iscntrl(c) && c < 128) {
+            if (buflen == bufsize - 1) {
+              bufsize *= 2;
+              buf = realloc(buf, bufsize);
+            }
+            buf[buflen++] = c;
+            buf[buflen] = '\0';
+        }
+    }
+}
 
 /**
  * @param key editorKey value of key pressed
