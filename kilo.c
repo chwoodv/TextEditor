@@ -400,10 +400,10 @@ void editorOpen(char *filename) {
     size_t linecap = 0;
     ssize_t linelen;
     while ((linelen = getline(&line, &linecap, fp)) != -1) {
-        while (linelen > 0 && (line[linelen - 1] == '\n' ||
-                             line[linelen - 1] == '\r'))
-        linelen--;
-      editorInsertRow(E.numrows, line, linelen);
+            while (linelen > 0 && (line[linelen - 1] == '\n' ||
+                                   line[linelen - 1] == '\r'))
+            linelen--;
+        editorInsertRow(E.numrows, line, linelen);
     }
     free(line);
     fclose(fp);
@@ -520,6 +520,9 @@ void editorDrawRows(struct abuf *ab) {
     }
 }
 
+/**
+ * @param ab buffer struct to be drawn from
+ */
 void editorDrawStatusBar(struct abuf *ab) {
     abAppend(ab, "\x1b[7m", 4);
 
