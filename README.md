@@ -4,10 +4,9 @@
 
 ---
 
-## 📚 Table of Contents
+## Table of Contents
 
 - [Features](#features)  
-- [Installation](#installation)  
 - [Usage](#usage)  
 - [Configuration](#configuration)  
 - [Keybindings](#keybindings)  
@@ -19,7 +18,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 - Basic text editing (insert, delete, overwrite)
 - Open and save text files
@@ -27,15 +26,30 @@
 - Cursor navigation with arrow keys
 - Status bar showing file name and cursor position
 - Minimal UI for distraction-free writing
+- File type based colored syntax
 - No external dependencies (only standard C libraries)
 
 ---
 
-## 📦 Installation
-
 ### Clone and Build
 
 ```sh
-git clone https://github.com/yourusername/termedit.git
-cd termedit
+git clone https://github.com/chwoodv/TextEditor
+cd TextEditor
 make
+
+## Usage
+
+## Configuration
+
+## Keybindings
+
+## Dependencies  
+
+## Build Instructions  
+
+## Roadmap  
+
+## Contributing  
+
+## License
