@@ -62,15 +62,14 @@ Kilo does not require any configuration to operate.
 
 ## Keybindings
 
-Action          Keys
----
-Save File           Ctrl + S
-Quit Editor	        Ctrl + Q
-Find                Ctrl + F
-Move Cursor         Arrow Keys
-Backspace/Delete    Backspace/Delete keys
-Insert Character	Any key
-Scroll	            Auto scroll
+| Action           | Keys        |
+| ---------------- | ----------- |
+| Save File        | `Ctrl + S`  |
+| Quit Editor      | `Ctrl + Q`  |
+| Move Cursor      | Arrow Keys  |
+| Backspace/Delete | `Backspace` |
+| Insert Character | Any key     |
+| Scroll           | Auto scroll |
 
 ## Dependencies
 
