@@ -55,6 +55,7 @@ enum editorHighlight {
 
 /*** ------------------------- data ------------------------- ***/
 
+// Syntax for coloring keywords and other file type specific information
 struct editorSyntax {
     char *filetype;
     char **filematch;
@@ -65,6 +66,7 @@ struct editorSyntax {
     char *multiline_comment_end;
 };
 
+// Row information
 typedef struct erow {
     int idx;
     int size;
@@ -75,6 +77,7 @@ typedef struct erow {
     int hl_open_comment;
 } erow;
 
+// Struct containing status of editor
 struct editorConfig {
     int cx, cy;
     int rx;
@@ -134,11 +137,18 @@ void die(const char *s) {
     exit(1);
 }
 
+/**
+ * Disables raw mode
+ * 
+ */
 void disableRawMode() {
     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &E.orig_termios) == -1)
         die("tcsetattr");
 }
 
+/**
+ * Sets flags for terminal to enter correct mode
+ */
 void enableRawMode() {
     if (tcgetattr(STDIN_FILENO, &E.orig_termios) == -1)
         die("tcgetattr");
@@ -211,6 +221,7 @@ int editorReadKey() {
 }
 
 /**
+ * Return cursor position to given pointers
  * 
  * @param rows returning row value of cursor
  * @param cols returning column value of cursor
@@ -232,6 +243,7 @@ int getCursorPosition(int *rows, int *cols) {
   }
 
 /**
+ * Return number of rows and columns in user's window
  * 
  * @param rows returning row number value
  * @param cols returning column number value
@@ -431,6 +443,7 @@ void editorSelectSyntaxHighlight() {
 /*** ------------------------- row operations ------------------------- ***/
 
 /**
+ * 
  * @param row erow containing current row being examined
  * @param cx current cx value
  * @return new rx value
@@ -463,6 +476,11 @@ int editorRowRxToCx(erow *row, int rx) {
     return cx;
 }
 
+/**
+ * Update row after changing something
+ * 
+ * @param row row to update
+ */
 void editorUpdateRow(erow *row) {
     int tabs = 0;
     int j;
@@ -486,6 +504,13 @@ void editorUpdateRow(erow *row) {
     editorUpdateSyntax(row);
 }
 
+/**
+ * Insert row after given row
+ * 
+ * @param at row index to insert after
+ * @param s string to fill line with
+ * @param len length of s
+ */
 void editorInsertRow(int at, char *s, size_t len) {
     if (at < 0 || at > E.numrows) return;
 
@@ -517,6 +542,8 @@ void editorFreeRow(erow *row) {
 }
 
 /**
+ * Delete row at given row index
+ * 
  * @param at delete \r\n and row at index
  */
 void editorDelRow(int at) {
@@ -529,6 +556,8 @@ void editorDelRow(int at) {
 }
 
 /**
+ * Insert character at given index of given row
+ * 
  * @param row erow of row being modified
  * @param at index to insert character
  * @param c character to insert
@@ -560,6 +589,8 @@ void editorRowAppendString(erow *row, char *s, size_t len) {
 }
 
 /**
+ * Delete character at given index
+ * 
  * @param row erow being modified
  * @param at index to delete character
  */
@@ -575,6 +606,7 @@ void editorRowDeleteChar(erow *row, int at) {
 
 /**
  * Insert character c at current location
+ * 
  * @param c character to be inserted
  */
 void editorInsertChar(int c) {
@@ -603,6 +635,9 @@ void editorInsertNewline(){
     E.cx = 0;
 }
 
+/**
+ * Handler for delete key
+ */
 void editorDelChar() {
     if (E.cy == E.numrows) return;
     if (E.cx == 0 && E.cy == 0) return;
@@ -665,8 +700,11 @@ void editorOpen(char *filename) {
     free(line);
     fclose(fp);
     E.dirty = 0;
-  }
+}
 
+/**
+ * Export current state of file to user file system, prompt if file does not exist
+ */
 void editorSave() {
     if (E.filename == NULL) {
         E.filename = editorPrompt("Save as: %s (ESC to cancel)", NULL);
@@ -895,6 +933,8 @@ void editorDrawRows(struct abuf *ab) {
 }
 
 /**
+ * Draw status bar on second to bottom line of terminal
+ * 
  * @param ab buffer struct to be drawn from
  */
 void editorDrawStatusBar(struct abuf *ab) {
@@ -924,6 +964,11 @@ void editorDrawStatusBar(struct abuf *ab) {
     abAppend(ab, "\r\n", 2);
 }
 
+/**
+ * Draw message bar on bottom line of terminal
+ * 
+ * @param ab buffer to be drawn from
+ */
 void editorDrawMessageBar(struct abuf *ab) {
     abAppend(ab, "\x1b[K", 3);
 
@@ -959,9 +1004,15 @@ void editorRefreshScreen() {
     abFree(&ab);
 }
 
+/**
+ * Set status message to given string
+ * Supports usual c string printing format
+ * 
+ * @param fmt String to set status message to
+ */
 void editorSetStatusMessage(const char *fmt, ...) {
     va_list ap;
-    va_start(ap, fmt);
+    va_start(ap, fmt);      // Get parameters for printing string
     vsnprintf(E.statusmsg, sizeof(E.statusmsg), fmt, ap);
     va_end(ap);
     E.statusmsg_time = time(NULL);
@@ -971,6 +1022,7 @@ void editorSetStatusMessage(const char *fmt, ...) {
 
 /**
  * Prompt the user with given prompt
+ * 
  * @param prompt prompt to give the user
  * @param callback callback function to use
  * @return user input to given prompt
@@ -1013,6 +1065,8 @@ char *editorPrompt(char *prompt, void (*callback)(char *, int)) {
 }
 
 /**
+ * Handles moving cursor with arrow keys
+ * 
  * @param key editorKey value of key pressed
  */
 void editorMoveCursor(int key) {
@@ -1135,6 +1189,9 @@ void editorProcessKeypress() {
 
 /*** ------------------------- init ------------------------- ***/
 
+/**
+ * Initialize editorConfig struct
+ */
 void initEditor() {
     E.cx = 0;
     E.cy = 0;
