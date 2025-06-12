@@ -107,6 +107,14 @@ char *C_HL_keywords[] = {
     "void|", NULL
 };
 
+char *JAVA_HL_extensions[] = { ".java", NULL };
+char *JAVA_HL_keywords[] = {
+    "switch", "if", "while", "for", "break", "continue", "return", "else",
+    "class", "interface", "enum", "public|", "private|", "protected|",
+    "static|", "final|", "void|", "int|", "long|", "double|", "float|",
+    "char|", "boolean|", NULL
+};
+
 struct editorSyntax HLDB[] = {
   {
     "c",
@@ -115,7 +123,15 @@ struct editorSyntax HLDB[] = {
     HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
     "//", "/*", "*/"
   },
+  {
+    "java",
+    JAVA_HL_extensions,
+    JAVA_HL_keywords,
+    HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
+    "//", "/*", "*/"
+  }
 };
+
 
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
 
