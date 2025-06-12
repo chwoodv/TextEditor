@@ -129,6 +129,13 @@ char *RUST_HL_keywords[] = {
     "crate|", "mod|", "self|", "super|", NULL
 };
 
+char *HTML_HL_extensions[] = { ".html", ".htm", NULL };
+char *HTML_HL_keywords[] = {
+    "html", "head", "body", "title", "meta", "link", "script", "style",
+    "div", "span", "p", "a", "img", "ul", "ol", "li",
+    "table", "tr", "td", "th", NULL
+};
+
 struct editorSyntax HLDB[] = {
     {
         "c",
@@ -157,6 +164,13 @@ struct editorSyntax HLDB[] = {
         RUST_HL_keywords,
         HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
         "//", "/*", "*/"
+    },
+    {
+        "html",
+        HTML_HL_extensions,
+        HTML_HL_keywords,
+        HL_HIGHLIGHT_STRINGS,
+        NULL, "<!--", "-->"
     }
 };
 
