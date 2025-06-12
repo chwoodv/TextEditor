@@ -136,6 +136,14 @@ char *HTML_HL_keywords[] = {
     "table", "tr", "td", "th", NULL
 };
 
+char *JS_HL_extensions[] = { ".js", NULL };
+char *JS_HL_keywords[] = {
+    "function", "var", "let", "const", "if", "else", "switch", "case",
+    "break", "continue", "return", "for", "while", "do", "try",
+    "catch", "finally", "import", "export", "class", "extends",
+    "super|", NULL
+};
+
 struct editorSyntax HLDB[] = {
     {
         "c",
@@ -171,6 +179,13 @@ struct editorSyntax HLDB[] = {
         HTML_HL_keywords,
         HL_HIGHLIGHT_STRINGS,
         NULL, "<!--", "-->"
+    },
+    {
+        "javascript",
+        JS_HL_extensions,
+        JS_HL_keywords,
+        HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
+        "//", "/*", "*/"
     }
 };
 
