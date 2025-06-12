@@ -144,6 +144,15 @@ char *JS_HL_keywords[] = {
     "super|", NULL
 };
 
+char *CPP_HL_extensions[] = { ".cpp", ".hpp", ".cxx", ".hxx", NULL };
+char *CPP_HL_keywords[] = {
+    "switch", "if", "while", "for", "break", "continue", "return", "else",
+    "class", "struct", "union", "typedef", "static", "enum",
+    "public|", "private|", "protected|", "virtual|",
+    "int|", "long|", "double|", "float|", "char|",
+    "unsigned|", "signed|", NULL
+};
+
 struct editorSyntax HLDB[] = {
     {
         "c",
@@ -184,6 +193,13 @@ struct editorSyntax HLDB[] = {
         "javascript",
         JS_HL_extensions,
         JS_HL_keywords,
+        HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
+        "//", "/*", "*/"
+    },
+    {
+        "cpp",
+        CPP_HL_extensions,
+        CPP_HL_keywords,
         HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
         "//", "/*", "*/"
     }
