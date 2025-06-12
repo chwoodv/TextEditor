@@ -122,6 +122,13 @@ char *PYTHON_HL_keywords[] = {
     "with", "lambda", "yield", NULL
 };
 
+char *RUST_HL_extensions[] = { ".rs", NULL };
+char *RUST_HL_keywords[] = {
+    "let", "mut", "fn", "impl", "struct", "enum", "match", "if", "else",
+    "while", "for", "break", "continue", "return", "use", "pub|",
+    "crate|", "mod|", "self|", "super|", NULL
+};
+
 struct editorSyntax HLDB[] = {
     {
         "c",
@@ -143,6 +150,13 @@ struct editorSyntax HLDB[] = {
         PYTHON_HL_keywords,
         HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
         "#", NULL, NULL
+    },
+    {
+        "rust",
+        RUST_HL_extensions,
+        RUST_HL_keywords,
+        HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
+        "//", "/*", "*/"
     }
 };
 
