@@ -115,29 +115,42 @@ char *JAVA_HL_keywords[] = {
     "char|", "boolean|", NULL
 };
 
-struct editorSyntax HLDB[] = {
-  {
-    "c",
-    C_HL_extensions,
-    C_HL_keywords,
-    HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
-    "//", "/*", "*/"
-  },
-  {
-    "java",
-    JAVA_HL_extensions,
-    JAVA_HL_keywords,
-    HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
-    "//", "/*", "*/"
-  }
+char *PYTHON_HL_extensions[] = { ".py", NULL };
+char *PYTHON_HL_keywords[] = {
+    "def", "class", "if", "elif", "else", "while", "for", "break", "continue",
+    "return", "import", "from", "as", "try", "except", "finally",
+    "with", "lambda", "yield", NULL
 };
 
+struct editorSyntax HLDB[] = {
+    {
+        "c",
+        C_HL_extensions,
+        C_HL_keywords,
+        HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
+        "//", "/*", "*/"
+    },
+    {
+        "java",
+        JAVA_HL_extensions,
+        JAVA_HL_keywords,
+        HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
+        "//", "/*", "*/"
+    },
+    {
+        "python",
+        PYTHON_HL_extensions,
+        PYTHON_HL_keywords,
+        HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS,
+        "#", NULL, NULL
+    }
+};
 
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
 
 /*** ------------------------- prototypes ------------------------- ***/
 
-void editorSetStatusMessage(const char *fmt, ...);
+void editorSetStatusMessage(const char *fmt, ...);   
 void editorRefreshScreen();
 char *editorPrompt(char *prompt, void (*callback)(char *, int));
 
