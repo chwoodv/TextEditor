@@ -80,6 +80,7 @@ typedef struct erow {
 // Struct containing status of editor
 struct editorConfig {
     int cx, cy;
+    int lx;
     int rx;
     int rowoff;
     int coloff;
@@ -703,6 +704,7 @@ void editorInsertChar(int c) {
     }
     editorRowInsertChar(&E.row[E.cy], E.cx, c);
     E.cx++;
+    E.lx = E.cx;
 }
 
 /**
@@ -721,6 +723,7 @@ void editorInsertNewline(){
     }
     E.cy++;
     E.cx = 0;
+    E.lx = E.cx;
 }
 
 /**
@@ -740,6 +743,7 @@ void editorDelChar() {
         editorDelRow(E.cy);
         E.cy--;
     }
+    E.lx = E.cx;
 } 
 
 /*** ------------------------- file i/o ------------------------- ***/
@@ -871,6 +875,7 @@ void editorFindCallback(char *query, int key) {
             last_match = current;
             E.cy = current;
             E.cx = editorRowRxToCx(row, match - row->render);
+            E.lx = E.cx;
             E.rowoff = E.numrows;
 
 
@@ -1161,32 +1166,36 @@ void editorMoveCursor(int key) {
     erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
 
     switch (key) {
-      case ARROW_LEFT:
-        if (E.cx != 0){
-            E.cx--;
-        } else if (E.cy > 0) {
-            E.cy--;
-            E.cx = E.row[E.cy].size;
-        }
-        break;
-      case ARROW_RIGHT:
-        if (row && E.cx < row->size) {
-            E.cx++;
-        } else if (row && E.cx == row->size) {
-            E.cy++;
-            E.cx = 0;
-        }
-        break;
-      case ARROW_UP:
-        if (E.cy != 0) {
-            E.cy--;
-        }
-        break;
-      case ARROW_DOWN:
-        if (E.cy < E.numrows) {
-            E.cy++;
-        }
-        break;
+        case ARROW_LEFT:
+            if (E.cx != 0){
+                E.cx--;
+            } else if (E.cy > 0) {
+                E.cy--;
+                E.cx = E.row[E.cy].size;
+            }
+            E.lx = E.cx;
+            break;
+        case ARROW_RIGHT:
+            if (row && E.cx < row->size) {
+                E.cx++;
+            } else if (row && E.cx == row->size) {
+                E.cy++;
+                E.cx = 0;
+            }
+            E.lx = E.cx;
+            break;
+        case ARROW_UP:
+            if (E.cy != 0) {
+                E.cy--;
+                E.cx = E.lx;
+            }
+            break;
+        case ARROW_DOWN:
+            if (E.cy < E.numrows) {
+                E.cy++;
+                E.cx = E.lx;
+            }
+            break;
     }
 
     row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
@@ -1220,10 +1229,13 @@ void editorProcessKeypress() {
 
         case HOME_KEY:
             E.cx = 0;
+            E.lx = 0;
             break;
         case END_KEY: 
-            if (E.cy < E.numrows) 
+            if (E.cy < E.numrows) {
                 E.cx = E.row[E.cy].size;
+                E.lx = E.cx;
+            }
             break;
 
         case CTRL_KEY('s'):
@@ -1283,6 +1295,7 @@ void editorProcessKeypress() {
 void initEditor() {
     E.cx = 0;
     E.cy = 0;
+    E.lx = 0;
     E.rx = 0;
     E.numrows = 0;
     E.rowoff = 0;
